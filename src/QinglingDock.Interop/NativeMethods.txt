@@ -39,6 +39,7 @@ ValidateRect
 // 说明：GetWindowLongPtr/SetWindowLongPtr 在 Win32 元数据中是 LongPtrA/W 宏，
 // CsWin32 不直接映射 → 见 WindowApi.cs 中的手写声明。
 // WM_* 消息常量在元数据中不是可映射类型 → 见 WindowMessage.cs。
+// 高精度可等待定时器（帧节奏）同样在 WindowApi.cs 手写，见 HighResolutionTimer。
 
 // —— 窗口样式 ——
 WINDOW_STYLE

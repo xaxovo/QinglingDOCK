@@ -2,7 +2,7 @@
 
   <!-- 版本号唯一来源：CI 以 -p:Version=<tag> 覆盖，本地默认见下方 VersionPrefix -->
   <PropertyGroup>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.1.1</VersionPrefix>
     <!-- 开发/CI 可注入 prerelease 与 build metadata，例如 -p:VersionSuffix=preview.1 -p:VersionBuild=42 -->
     <VersionSuffix Condition="'$(VersionSuffix)' == ''"></VersionSuffix>
     <VersionBuild Condition="'$(VersionBuild)' == ''"></VersionBuild>

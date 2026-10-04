@@ -61,6 +61,7 @@ public sealed class CompositionRenderer : IDisposable
     private readonly ManualResetEventSlim _renderSignal = new(false);
     private readonly Stopwatch _frameTimer = new();
     private readonly Stopwatch _paceClock = new();
+    private readonly HighResolutionTimer _paceTimer = new();
     private TimeSpan _totalThrottleWait;
     private TimeSpan _totalDrawCost;
     private long _totalPresentCalls;
@@ -207,11 +208,12 @@ public sealed class CompositionRenderer : IDisposable
     /// 让本方法退化成纯自旋（实测把单个核心跑满），而且自旋耗时还会被误计入"等待时间"，
     /// 使性能统计看起来正常 —— 属于极难察觉的错误。
     ///
-    /// 实现选择：使用 Thread.Sleep 而不是可等待定时器。
-    /// System.Threading.Timer 的回调经由线程池，从到期到真正释放等待存在不稳定的固定延迟，
-    /// 会造成帧间隔在 16ms 与 48ms 之间摆动（成组掉帧）。
-    /// .NET 8 在现代 Windows 上为 Thread.Sleep 启用了高精度定时器（约 1ms 粒度），
-    /// 行为更确定，适合帧节奏这种毫秒级场景。
+    /// 实现选择：优先使用高精度可等待定时器，退回 Thread.Sleep。
+    ///
+    /// Thread.Sleep 在部分环境下受系统时钟节拍（约 15.6ms）向上取整，
+    /// 会造成周期性长帧（实测帧间隔 P99 稳定在 31ms ≈ 2 × 15.6ms）。
+    /// <see cref="HighResolutionTimer"/> 使用 CREATE_WAITABLE_TIMER_HIGH_RESOLUTION，
+    /// 粒度低于 1ms，且等待期间线程完全挂起、不占用 CPU。
     /// </summary>
     private void WaitUntil(TimeSpan deadline)
     {
@@ -223,16 +225,20 @@ public sealed class CompositionRenderer : IDisposable
                 return;
             }
 
-            // 睡到目标时刻之前约 1ms，再用极短自旋收口。
-            // 自旋只占每帧不到 1ms，对 CPU 影响可忽略（实测整体约 2% 单核）。
-            var sleepMs = (int)(remaining.TotalMilliseconds - 1.0);
-            if (sleepMs <= 0)
+            // 留出少量余量，避免睡过头造成长帧
+            var wait = remaining - TimeSpan.FromMilliseconds(0.8);
+            if (wait <= TimeSpan.Zero)
             {
-                Thread.SpinWait(200);
+                Thread.SpinWait(100);
                 return;
             }
 
-            Thread.Sleep(sleepMs);
+            if (!_paceTimer.Wait(wait))
+            {
+                // 定时器不可用（系统过旧或被策略限制）时退回 Sleep
+                Thread.Sleep(wait);
+                return;
+            }
         }
     }
 
@@ -498,6 +504,7 @@ public sealed class CompositionRenderer : IDisposable
         _swapChain?.Dispose();
         _deviceContext?.Dispose();
         _device?.Dispose();
+        _paceTimer.Dispose();
         _renderSignal.Dispose();
     }
 }

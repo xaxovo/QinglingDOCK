@@ -14,6 +14,27 @@
 - 自动隐藏的边缘感应交互
 - 置顶防抢占策略（前台窗口事件驱动重申 + 全屏让位）
 
+### 计划中（工程优化）
+- 自包含单文件产物启用裁剪与 ReadyToRun，压缩分发体积
+  （当前自包含 ZIP 37.7 MB / 解压后 94 MB，其中大部分为 .NET 运行时）
+
+## [0.1.1] - 2026-10-04
+
+阶段 0 的帧节奏修正与工程收尾。
+
+### 新增
+- `HighResolutionTimer`：基于 `CREATE_WAITABLE_TIMER_HIGH_RESOLUTION` 的
+  高精度可等待定时器，用于帧节奏控制
+
+### 性能
+- 帧间隔 P99 从 31 ms 降至 **17.6 ms**，可见态 CPU 从 3.77% 降至 **1.37%** 单核。
+  `Thread.Sleep` 在部分环境受系统时钟节拍（约 15.6 ms）向上取整造成周期性长帧，
+  改用高精度定时器后等待期间线程完全挂起
+
+### 文档
+- README 补齐实测性能数据与分发体积对照
+- 记录阶段 0 发现并修复的 6 类易错点，纳入 CONTRIBUTING 供后续开发规避
+
 ## [0.1.0] - 2026-10-04
 
 阶段 0：工程骨架、云端流水线与渲染内核验证。
@@ -39,5 +60,6 @@
 - 组合交换链 `Present` 不阻塞垂直同步导致的数千 fps 空转
 - 日志写入失败被静默吞掉，导致启动问题无从定位
 
-[Unreleased]: https://github.com/xaxovo/QinglingDOCK/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/xaxovo/QinglingDOCK/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/xaxovo/QinglingDOCK/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/xaxovo/QinglingDOCK/releases/tag/v0.1.0
