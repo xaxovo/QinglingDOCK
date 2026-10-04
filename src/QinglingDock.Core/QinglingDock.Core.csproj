@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 纯逻辑层：零 Win32 依赖，可在任意平台单测与复用 -->
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>QinglingDock.Core</RootNamespace>
+    <AssemblyName>QinglingDock.Core</AssemblyName>
+  </PropertyGroup>
+
+</Project>

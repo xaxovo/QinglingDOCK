@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build:
+    name: 构建与测试
+    runs-on: windows-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 缓存 NuGet 包
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: 还原依赖
+        run: dotnet restore QinglingDock.sln
+
+      - name: 构建（警告视为错误）
+        run: dotnet build QinglingDock.sln -c Release --no-restore -p:TreatWarningsAsErrors=true
+
+      - name: 运行单元测试
+        run: dotnet test QinglingDock.sln -c Release --no-build --logger "trx;LogFileName=test-results.trx" --results-directory artifacts/test-results
+
+      - name: 上传测试结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts/test-results
+          if-no-files-found: warn
+
+      - name: 发布 win-x64 构建产物
+        run: >
+          dotnet publish src/QinglingDock.App/QinglingDock.App.csproj
+          -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=false
+          -o artifacts/publish/win-x64
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: QinglingDock-win-x64-${{ github.sha }}
+          path: artifacts/publish/win-x64
+          if-no-files-found: error

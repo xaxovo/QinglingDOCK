@@ -1,0 +1,70 @@
+# git-cliff 配置：由 Conventional Commits 自动生成 CHANGELOG
+# 文档见 https://git-cliff.org/docs/configuration
+
+[changelog]
+header = """
+# Changelog\n
+本文件记录 QinglingDOCK 的所有重要变更。\n
+格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
+版本号遵循 [语义化版本 2.0.0](https://semver.org/lang/zh-CN/)。\n
+"""
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}\
+            {{ commit.message | upper_first }}\
+            {% if commit.github.username %} ([@{{ commit.github.username }}](https://github.com/{{ commit.github.username }})){% endif %}\
+            {% if commit.github.pr_number %} ([#{{ commit.github.pr_number }}](https://github.com/xaxovo/QinglingDOCK/pull/{{ commit.github.pr_number }})){% endif %}\
+    {% endfor %}
+{% endfor %}\n
+"""
+footer = """
+{% for release in releases -%}
+    {% if release.version -%}
+        {% if release.previous.version -%}
+            [{{ release.version | trim_start_matches(pat="v") }}]: \
+                https://github.com/xaxovo/QinglingDOCK/compare/{{ release.previous.version }}..{{ release.version }}
+        {% endif -%}
+    {% else -%}
+        [Unreleased]: https://github.com/xaxovo/QinglingDOCK/compare/{{ release.previous.version }}..HEAD
+    {% endif -%}
+{% endfor %}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+protect_breaking_commits = false
+filter_commits = false
+tag_pattern = "v[0-9]*"
+skip_tags = ""
+ignore_tags = ""
+topo_order = false
+sort_commits = "oldest"
+
+commit_parsers = [
+    { message = "^feat", group = "新增" },
+    { message = "^fix", group = "修复" },
+    { message = "^perf", group = "性能" },
+    { message = "^refactor", group = "重构" },
+    { message = "^doc", group = "文档" },
+    { message = "^docs", group = "文档" },
+    { message = "^test", group = "测试" },
+    { message = "^chore\\(release\\)", skip = true },
+    { message = "^chore\\(deps\\)", skip = true },
+    { message = "^chore", group = "杂项" },
+    { message = "^ci", group = "持续集成" },
+    { message = "^build", group = "构建" },
+    { message = "^style", group = "代码风格" },
+    { message = "^revert", group = "回退" },
+]
+
+# 阶段 0 的提交在 CHANGELOG.md 中手工整理，避免自动生成覆盖已审核的内容

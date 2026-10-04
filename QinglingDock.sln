@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BFE89F90-31DE-4E1E-8E43-ABA865C3589C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QinglingDock.App", "src\QinglingDock.App\QinglingDock.App.csproj", "{98FBE6EB-74CC-4CF8-9088-F705ED8EE56E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QinglingDock.Core", "src\QinglingDock.Core\QinglingDock.Core.csproj", "{F65CF50C-2F8E-4C4F-9660-E8C828339A92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QinglingDock.Interop", "src\QinglingDock.Interop\QinglingDock.Interop.csproj", "{18029FA2-BB52-447B-83F5-5B3C391591E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QinglingDock.Rendering", "src\QinglingDock.Rendering\QinglingDock.Rendering.csproj", "{AE24DC31-69C5-4CB9-B402-5B128DB2A673}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F2145B8D-B750-4AB4-89B5-39C1AC5F9BDE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QinglingDock.Core.Tests", "tests\QinglingDock.Core.Tests\QinglingDock.Core.Tests.csproj", "{C15F87EF-4742-48A9-B5B2-25287CC9C589}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98FBE6EB-74CC-4CF8-9088-F705ED8EE56E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98FBE6EB-74CC-4CF8-9088-F705ED8EE56E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98FBE6EB-74CC-4CF8-9088-F705ED8EE56E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98FBE6EB-74CC-4CF8-9088-F705ED8EE56E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F65CF50C-2F8E-4C4F-9660-E8C828339A92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F65CF50C-2F8E-4C4F-9660-E8C828339A92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F65CF50C-2F8E-4C4F-9660-E8C828339A92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F65CF50C-2F8E-4C4F-9660-E8C828339A92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18029FA2-BB52-447B-83F5-5B3C391591E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18029FA2-BB52-447B-83F5-5B3C391591E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18029FA2-BB52-447B-83F5-5B3C391591E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18029FA2-BB52-447B-83F5-5B3C391591E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE24DC31-69C5-4CB9-B402-5B128DB2A673}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE24DC31-69C5-4CB9-B402-5B128DB2A673}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE24DC31-69C5-4CB9-B402-5B128DB2A673}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE24DC31-69C5-4CB9-B402-5B128DB2A673}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C15F87EF-4742-48A9-B5B2-25287CC9C589}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C15F87EF-4742-48A9-B5B2-25287CC9C589}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C15F87EF-4742-48A9-B5B2-25287CC9C589}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C15F87EF-4742-48A9-B5B2-25287CC9C589}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{98FBE6EB-74CC-4CF8-9088-F705ED8EE56E} = {BFE89F90-31DE-4E1E-8E43-ABA865C3589C}
+		{F65CF50C-2F8E-4C4F-9660-E8C828339A92} = {BFE89F90-31DE-4E1E-8E43-ABA865C3589C}
+		{18029FA2-BB52-447B-83F5-5B3C391591E8} = {BFE89F90-31DE-4E1E-8E43-ABA865C3589C}
+		{AE24DC31-69C5-4CB9-B402-5B128DB2A673} = {BFE89F90-31DE-4E1E-8E43-ABA865C3589C}
+		{C15F87EF-4742-48A9-B5B2-25287CC9C589} = {F2145B8D-B750-4AB4-89B5-39C1AC5F9BDE}
+	EndGlobalSection
+EndGlobal

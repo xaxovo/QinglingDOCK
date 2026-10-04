@@ -1,0 +1,169 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '要发布的版本号（例如 0.2.0）'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  resolve-version:
+    name: 解析版本号
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - name: 解析
+        id: resolve
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::版本号 '$VERSION' 不符合 SemVer 规范"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "发布版本：$VERSION"
+
+  build:
+    name: 构建 ${{ matrix.rid }}
+    needs: resolve-version
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            arch: x64
+          - rid: win-arm64
+            arch: arm64
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 缓存 NuGet 包
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: 还原依赖
+        run: dotnet restore QinglingDock.sln
+
+      - name: 运行单元测试
+        run: dotnet test tests/QinglingDock.Core.Tests/QinglingDock.Core.Tests.csproj -c Release -p:Version=${{ needs.resolve-version.outputs.version }}
+
+      - name: 发布自包含单文件
+        run: >
+          dotnet publish src/QinglingDock.App/QinglingDock.App.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:PublishSingleFile=true
+          -p:Version=${{ needs.resolve-version.outputs.version }}
+          -p:InformationalVersion=${{ needs.resolve-version.outputs.version }}
+          -o artifacts/publish/${{ matrix.rid }}
+
+      - name: 打包 ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ needs.resolve-version.outputs.version }}"
+          $rid = "${{ matrix.rid }}"
+          $src = "artifacts/publish/$rid"
+          $zip = "artifacts/QinglingDOCK-$version-$rid.zip"
+
+          # 随包附带说明，避免用户看到单文件 exe 不明所以
+          @"
+          QinglingDOCK $version ($rid)
+          构建时间：$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+          提交：${{ github.sha }}
+
+          运行方式：解压后直接执行 QinglingDock.exe（自包含，无需安装 .NET 运行时）
+          日志位置：%LOCALAPPDATA%\QinglingDOCK\logs\qinglingdocks.log
+          "@ | Set-Content -Path "$src/说明.txt" -Encoding UTF8
+
+          Compress-Archive -Path "$src/*" -DestinationPath $zip -Force
+
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash
+          "$hash  $(Split-Path $zip -Leaf)" | Set-Content -Path "$zip.sha256" -Encoding UTF8
+
+          Write-Host "已生成 $zip"
+          Write-Host "SHA256 $hash"
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.rid }}
+          path: |
+            artifacts/QinglingDOCK-*.zip
+            artifacts/QinglingDOCK-*.zip.sha256
+          if-no-files-found: error
+
+  release:
+    name: 创建 GitHub Release
+    needs: [resolve-version, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 下载全部产物
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: release-*
+          merge-multiple: true
+
+      - name: 生成变更日志
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: artifacts/RELEASE_NOTES.md
+          GITHUB_REPO: ${{ github.repository }}
+
+      - name: 发布
+        uses: softprops/action-gh-release@v2
+        with:
+          name: QinglingDOCK ${{ needs.resolve-version.outputs.version }}
+          tag_name: v${{ needs.resolve-version.outputs.version }}
+          body_path: artifacts/RELEASE_NOTES.md
+          draft: false
+          prerelease: ${{ contains(needs.resolve-version.outputs.version, '-') }}
+          files: |
+            artifacts/*.zip
+            artifacts/*.zip.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

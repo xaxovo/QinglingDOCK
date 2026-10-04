@@ -1,0 +1,33 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup Label="Rendering — Vortice (MIT)">
+    <PackageVersion Include="Vortice.Direct3D11" Version="3.8.3" />
+    <PackageVersion Include="Vortice.Direct2D1" Version="3.8.3" />
+    <PackageVersion Include="Vortice.DirectComposition" Version="3.8.3" />
+    <PackageVersion Include="Vortice.DXGI" Version="3.8.3" />
+    <PackageVersion Include="Vortice.Mathematics" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Win32 interop source generator (MIT)">
+    <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.346" />
+  </ItemGroup>
+
+  <!-- 阶段 1 起用于接管任务栏 Tasks 与通知区域 Tray（Apache-2.0）。
+       注意：ManagedShell 基于 WPF 构建，引入后可能需要 Dispatcher 消息泵，
+       阶段 0 暂不引入，避免在渲染内核定型前被 WPF 绑定。 -->
+  <ItemGroup Label="Shell services — 阶段 1+ (Apache-2.0)">
+    <PackageVersion Include="ManagedShell" Version="0.0.374" />
+  </ItemGroup>
+
+  <ItemGroup Label="Testing">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>

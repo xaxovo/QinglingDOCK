@@ -1,0 +1,46 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # 每周一 03:17 UTC
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: 安全扫描 (C#)
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 初始化 CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          # 本项目使用 CsWin32 源生成器，自动构建可能失败，改为显式构建
+          build-mode: manual
+
+      - name: 构建
+        run: dotnet build QinglingDock.sln -c Release
+
+      - name: 执行分析
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:csharp'

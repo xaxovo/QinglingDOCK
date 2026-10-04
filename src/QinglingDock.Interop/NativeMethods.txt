@@ -1,0 +1,62 @@
+// QinglingDock Win32 与 DirectComposition 绑定清单。
+// CsWin32 会在编译期依据此文件生成 P/Invoke 与 COM 接口绑定，避免手写签名出错。
+// 需要新 API 时在此追加一行函数名或类型名即可。
+
+// —— 显示器与 DPI ——
+EnumDisplayMonitors
+MonitorFromWindow
+MONITOR_FROM_FLAGS
+GetMonitorInfo
+MONITORINFO
+MONITORINFOEXW
+GetDpiForMonitor
+MONITOR_DPI_TYPE
+
+// —— 窗口类与窗口 ——
+RegisterClassEx
+CreateWindowEx
+DefWindowProc
+DestroyWindow
+GetMessage
+TranslateMessage
+DispatchMessage
+PostQuitMessage
+ShowWindow
+SetWindowPos
+GetModuleHandle
+GetClientRect
+LoadCursor
+WNDCLASSEXW
+MSG
+RECT
+
+// —— 绘制验证（关键：不验证更新区域会导致 WM_PAINT 无限重复入队）——
+BeginPaint
+EndPaint
+PAINTSTRUCT
+ValidateRect
+
+// 说明：GetWindowLongPtr/SetWindowLongPtr 在 Win32 元数据中是 LongPtrA/W 宏，
+// CsWin32 不直接映射 → 见 WindowApi.cs 中的手写声明。
+// WM_* 消息常量在元数据中不是可映射类型 → 见 WindowMessage.cs。
+
+// —— 窗口样式 ——
+WINDOW_STYLE
+WINDOW_EX_STYLE
+WNDCLASS_STYLES
+SHOW_WINDOW_CMD
+SET_WINDOW_POS_FLAGS
+SYSTEM_METRICS_INDEX
+IDC_ARROW
+
+// —— 前台窗口与置顶防抢占（阶段 1 使用）——
+GetForegroundWindow
+SetWinEventHook
+UnhookWinEvent
+GetWindowRect
+IsWindowVisible
+SHQueryUserNotificationState
+QUERY_USER_NOTIFICATION_STATE
+
+// —— 合成设备 ——
+DCompositionCreateDevice

@@ -1,0 +1,47 @@
+<Project>
+
+  <!-- 版本号唯一来源：CI 以 -p:Version=<tag> 覆盖，本地默认见下方 VersionPrefix -->
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <!-- 开发/CI 可注入 prerelease 与 build metadata，例如 -p:VersionSuffix=preview.1 -p:VersionBuild=42 -->
+    <VersionSuffix Condition="'$(VersionSuffix)' == ''"></VersionSuffix>
+    <VersionBuild Condition="'$(VersionBuild)' == ''"></VersionBuild>
+    <Version Condition="'$(Version)' == '' And '$(VersionSuffix)' != '' And '$(VersionBuild)' != ''">$(VersionPrefix)-$(VersionSuffix)+$(VersionBuild)</Version>
+    <Version Condition="'$(Version)' == '' And '$(VersionSuffix)' != '' And '$(VersionBuild)' == ''">$(VersionPrefix)-$(VersionSuffix)</Version>
+    <Version Condition="'$(Version)' == '' And '$(VersionSuffix)' == '' And '$(VersionBuild)' != ''">$(VersionPrefix)+$(VersionBuild)</Version>
+    <Version Condition="'$(Version)' == '' And '$(VersionSuffix)' == '' And '$(VersionBuild)' == ''">$(VersionPrefix)</Version>
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).0</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+  </PropertyGroup>
+
+  <!-- 产品元数据 -->
+  <PropertyGroup>
+    <Product>QinglingDOCK</Product>
+    <Company>QinglingDOCK contributors</Company>
+    <Authors>xaxovo</Authors>
+    <Copyright>Copyright (c) 2026 QinglingDOCK contributors</Copyright>
+    <Description>QinglingDOCK（清零 DOCK）— 轻量、流畅、不被顶掉的 Windows 桌面 Dock。</Description>
+    <RepositoryUrl>https://github.com/xaxovo/QinglingDOCK</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <!-- 编译质量门槛 -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- 项目级公共设置；TargetFramework 由各项目自行声明（纯逻辑项目用 net8.0） -->
+  <PropertyGroup>
+    <Platforms>AnyCPU;x64;ARM64</Platforms>
+  </PropertyGroup>
+
+</Project>
