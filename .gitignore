@@ -39,16 +39,3 @@ local.settings.json
 Thumbs.db
 desktop.ini
 $RECYCLE.BIN/
-
-# ============================================================================
-# 本仓库只应包含 QinglingDOCK 本体。
-# 本项目的开发工作目录是一个共享工作区，其中并存其他无关项目；
-# 以下条目用于防止它们被误提交（尤其是包含凭据的文件）。
-# 若你克隆本仓库，这些目录并不存在，条目不会产生任何影响。
-# ============================================================================
-/ai-passport/
-/dsh-550c-boot-install-backup/
-/dsh-market-install-backup/
-/dsh-web-all-install-backup/
-/fmo-research/
-/fmo-software-access/
